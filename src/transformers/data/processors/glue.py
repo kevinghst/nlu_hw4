@@ -206,42 +206,56 @@ class MrpcProcessor(DataProcessor):
         return examples
 
 class BoolQProcessor(DataProcessor):
-    def get_example_from_tensor_dict(self, tensor_dict):
-        """See base class."""
-        return InputExample(
-            tensor_dict["idx"].numpy(),
-            tensor_dict["premise"].numpy().decode("utf-8"),
-            tensor_dict["hypothesis"].numpy().decode("utf-8"),
-            str(tensor_dict["label"].numpy()),
-        )
+	"""Processor for the MRPC data set (GLUE version)."""
 
-    def get_train_examples(self, data_dir):
-        """See base class."""
-        return self._create_examples(self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
+	def get_example_from_tensor_dict(self, tensor_dict):
+		return InputExample(
+			tensor_dict["idx"].numpy(),
+			tensor_dict["sentence1"].numpy().decode("utf-8"),
+			tensor_dict["sentence2"].numpy().decode("utf-8"),
+			str(tensor_dict["label"].numpy()),
+		)
 
-    def get_dev_examples(self, data_dir):
-        """See base class."""
-        return self._create_examples(self._read_tsv(os.path.join(data_dir, "dev_matched.tsv")), "dev_matched")
+	def get_train_examples(self, data_dir):
+		data = []
+		with open(os.path.join(data_dir, "train.jsonl")) as f:
+			for line in f:
+				data.append(json.loads(line))
 
-    def get_labels(self):
-        """See base class."""
-        return ["contradiction", "entailment", "neutral"]
+		return self._create_examples(data, "train")
+		
+	def get_dev_examples(self, data_dir):
+		"""See base class."""
+		data = []
+		with open(os.path.join(data_dir, "val.jsonl")) as f:
+			for line in f:
+				data.append(json.loads(line))
 
-    def _create_examples(self, lines, set_type):
-        """Creates examples for the training and dev sets."""
-        pdb.set_trace()
-        examples = []
-        for (i, line) in enumerate(lines):
-            if i == 0:
-                continue
-            guid = "%s-%s" % (set_type, line[0])
-            text_a = line[8]
-            text_b = line[9]
-            label = line[-1]
-            pdb.set_trace()
+		return self._create_examples(data, "dev")
+		
+	def get_labels(self):
+		"""See base class."""
+		return ["0", "1"]
 
-            examples.append(InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
-        return examples
+	def _create_examples(self, lines, set_type):
+		examples = []
+		for (i, line) in enumerate(lines):
+			if i == 0:
+				continue
+			try:
+				guid = "%s-%s" % (set_type, i)
+				text_a = line['question']
+				text_b = line['passage']
+				if line['label']:
+					label = "1"
+				else:
+					label = "0"
+				
+				examples.append(InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
+			except:
+				continue
+				
+		return examples
 
 
 class MnliProcessor(DataProcessor):
@@ -269,7 +283,6 @@ class MnliProcessor(DataProcessor):
         return ["contradiction", "entailment", "neutral"]
 
     def _create_examples(self, lines, set_type):
-        pdb.set_trace()
         """Creates examples for the training and dev sets."""
         examples = []
         for (i, line) in enumerate(lines):
@@ -279,7 +292,6 @@ class MnliProcessor(DataProcessor):
             text_a = line[8]
             text_b = line[9]
             label = line[-1]
-            pdb.set_trace()
             examples.append(InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
         return examples
 
