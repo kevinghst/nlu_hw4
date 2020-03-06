@@ -269,6 +269,7 @@ class MnliProcessor(DataProcessor):
         return ["contradiction", "entailment", "neutral"]
 
     def _create_examples(self, lines, set_type):
+        pdb.set_trace()
         """Creates examples for the training and dev sets."""
         examples = []
         for (i, line) in enumerate(lines):
@@ -278,6 +279,7 @@ class MnliProcessor(DataProcessor):
             text_a = line[8]
             text_b = line[9]
             label = line[-1]
+            pdb.set_trace()
             examples.append(InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
         return examples
 
