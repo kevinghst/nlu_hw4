@@ -5,14 +5,9 @@
 #SBATCH --time=0:30:00
 #SBATCH --job-name="nlu_hw4"
 
-module purge
-module load anaconda3/5.3.1
-module load cuda/10.0.130
-module load gcc/6.3.0
-
 # Replace with your NetID
 NETID=wz1232
-source activate /scratch/${NETID}/nlu/env
+conda activate /scratch/wz1232/nlu/env
 
 GLUE_DIR=/scratch/${NETID}/nlu/data
 TASK_NAME=BOOLQ
@@ -21,7 +16,7 @@ cd /scratch/${NETID}/nlu/code/transformers
 export PYTHONPATH=/scratch/${NETID}/nlu/code/transformers/src:$PYTHONPATH
 python ./examples/run_glue.py \
     --model_type roberta \
-    --model_name_or_path bert-base-uncased \
+    --model_name_or_path roberta-base \
     --task_name ${TASK_NAME} \
     --do_train \
     --do_eval \
